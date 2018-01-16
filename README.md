@@ -30,7 +30,10 @@ as well as some potentially useful `From` implementations to convert back and fo
 ## Using It Yourself
 The semantics of `LilBitSet` are similar to that of `HashSet<u8>`minus some missing functions which woudln't be useful, such as `new_with_capacity`.
 
-Most noteworthy is that the thread will `Panic!` if there is _ever_ an attempt to `insert` some u8 with a value greater than 63. The function `try_insert` also exists in the event a silent failure is preferable.
+Most noteworthy is that the thread will `Panic!` if there is _ever_ an attempt to
+`insert` some u8 with a value greater than 63. If this behaviour is undesirable,
+just protect it with an `if` check. I avoided implementing it myself as it
+simply bloats the API.
 
 
 ## Examples

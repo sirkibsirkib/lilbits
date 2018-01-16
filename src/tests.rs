@@ -60,10 +60,12 @@ fn super_fast() {
     let libset_const = vec![1,5,7].iter().collect();
     let mut lilbitset: LilBitSet = some_vec().iter().collect();
     for i in 0u32..1_000_000u32 {
+        //performs some bogus computation. Notice the loop dependency
         lilbitset = lilbitset.clone().union(libset_const);
         lilbitset.remove(((i+6) % 64) as u8);
         lilbitset.insert((i % 64) as u8);
     }
+    //if this test finishes in reasonable time, it passes
 }
 
 
@@ -75,17 +77,28 @@ fn boundaries() {
 }
 
 #[test]
-fn is_sync() {
+fn multithreading_ok() {
     let lilbitset = lilbits!{1,2,5,3,55,9,5,62,33};
-
     let mut handles = vec![];
     for i in 0..20 {
-        // let lilbitset_clone = lilbitset.clone();
-        handles.push(thread::spawn(move || {
+        handles.push(thread::spawn( || {
             lilbitset.contains(i);
         }));
     };
     for h in handles {
         let _ = h.join();
+    }
+}
+
+#[test]
+fn try_insert() {
+    let mut lilbitset = LilBitSet::new();
+    let largest_allowed = LilBitSet::largest_allowed(); 
+    for x in 0..10_000 {
+        // `try_insert` function returns true IFF successfully inserted the value
+        match lilbitset.try_insert(x) {
+            true => assert!(x <= largest_allowed),
+            false => assert!(x <= largest_allowed),
+        }
     }
 }
