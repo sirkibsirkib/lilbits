@@ -18,7 +18,7 @@ impl LilBitSet {
     pub fn new() -> LilBitSet { LilBitSet {bits : 0} }
     #[inline]
     /// Returns the largest u8 values that IS permitted to be inserted.
-    pub fn largest_allowed() -> u8 { Self::VALUE_LIMIT-1 } 
+    pub fn largest_allowed() -> u8 { Self::VALUE_LIMIT } 
     #[inline]
     /// Constructs a LilBitSet from a `u64`. The indices of positive
     /// bits refers to the presence of a u8 in the set. ie '...1010'
@@ -159,6 +159,7 @@ impl IntoIterator for LilBitSet {
 }
 
 
+/// Iterator over elements inside a `LilBitSet`.
 pub struct IntoIter {
     bit_set : LilBitSet,
     index : u8,

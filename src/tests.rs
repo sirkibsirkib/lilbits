@@ -57,11 +57,11 @@ fn custom_macro() {
 
 #[test]
 fn super_fast() {
-    let libset_const = vec![1,5,7].iter().collect();
+    let libset_const: LilBitSet = vec![1,5,7].iter().collect();
     let mut lilbitset: LilBitSet = some_vec().iter().collect();
     for i in 0u32..1_000_000u32 {
         //performs some bogus computation. Notice the loop dependency
-        lilbitset = lilbitset.clone().union(libset_const);
+        lilbitset = lilbitset.clone().union(&libset_const);
         lilbitset.remove(((i+6) % 64) as u8);
         lilbitset.insert((i % 64) as u8);
     }
@@ -81,7 +81,7 @@ fn multithreading_ok() {
     let lilbitset = lilbits!{1,2,5,3,55,9,5,62,33};
     let mut handles = vec![];
     for i in 0..20 {
-        handles.push(thread::spawn( || {
+        handles.push(thread::spawn(move || {
             lilbitset.contains(i);
         }));
     };
@@ -93,12 +93,14 @@ fn multithreading_ok() {
 #[test]
 fn try_insert() {
     let mut lilbitset = LilBitSet::new();
-    let largest_allowed = LilBitSet::largest_allowed(); 
-    for x in 0..10_000 {
-        // `try_insert` function returns true IFF successfully inserted the value
-        match lilbitset.try_insert(x) {
-            true => assert!(x <= largest_allowed),
-            false => assert!(x <= largest_allowed),
-        }
+    let mut next = 0u8; 
+    while next <= LilBitSet::largest_allowed() {
+        // the insertion should succeed!
+        assert!(lilbitset.insert(next));
+        next += 1;
     }
+    thread::spawn(move || {
+        //this insertion should fail, and be 'negated' by the `expect_err`
+        assert!(lilbitset.insert(next));
+    }).join().expect_err("It worked?");
 }
